@@ -1,7 +1,7 @@
 import random
 
 class ANEAgent:
-    def __init__(self, env, ppo, M=6, K=1, n=5, alpha=0.3):
+    def __init__(self, env, ppo, M=6, K=1, n=5, alpha=0.3, gamma=0.99, lambd=0.95):
         self.env = env
         self.ppo = ppo
         self.M = M
@@ -10,6 +10,8 @@ class ANEAgent:
         self.alpha = alpha
         self.S = set()
         self.C = {}
+        self.gamma = gamma
+        self.lam=lambd
         self.batch_data = []
 
     def initialize_questions(self):
@@ -52,7 +54,7 @@ class ANEAgent:
                 answers_t1 = [self.env.answer_question(next_state, q) for q in qs]
 
                 # Render here to see what's happening
-                self.env.render()  # note: access the wrapped env's render()
+                self.env.env.render()  # note: access the wrapped env's render()
 
                 # Intrinsic reward calculation
                 ri = 0
@@ -82,13 +84,13 @@ class ANEAgent:
             self.ppo.update((states, actions, log_probs, advs, advs, returns))
 
     ## ppo with entropy term and Generalized advantage estimation
-    def compute_advantages(self, rewards, values, gamma=0.99, lam=0.95):
+    def compute_advantages(self, rewards, values):
         advantages = []
         gae = 0
         values = values + [0]  # Add bootstrap value
         for t in reversed(range(len(rewards))):
-            delta = rewards[t] + gamma * values[t + 1] - values[t]
-            gae = delta + gamma * lam * gae
+            delta = rewards[t] + self.gamma * values[t + 1] - values[t]
+            gae = delta + self.gamma * self.lam * gae
             advantages.insert(0, gae)
         returns = [adv + val for adv, val in zip(advantages, values[:-1])]
         return returns, advantages

@@ -27,11 +27,10 @@ class ValueNetwork(nn.Module):
         return self.fc(x)
  
 class PPO:
-    def __init__(self, state_dim, action_dim, lr=3e-4, gamma=0.99, clip_epsilon=0.2):
+    def __init__(self, state_dim, action_dim, lr=3e-4, clip_epsilon=0.2):
         self.policy = PolicyNetwork(state_dim, action_dim)
         self.value = ValueNetwork(state_dim)
         self.optimizer = optim.Adam(list(self.policy.parameters()) + list(self.value.parameters()), lr=lr)
-        self.gamma = gamma
         self.clip_epsilon = clip_epsilon
     
     def get_action(self, state):
