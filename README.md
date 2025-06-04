@@ -1,1 +1,1 @@
-# Ask-Explore
+# ASK & EXPLORE: Grounded question answering for curiosity-driven exploration
