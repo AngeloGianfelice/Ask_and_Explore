@@ -6,7 +6,9 @@ class PolicyNetwork(nn.Module):
     def __init__(self, state_dim, action_dim):
         super().__init__()
         self.fc = nn.Sequential(
-            nn.Linear(state_dim, 128),
+            nn.Linear(state_dim, 256),
+            nn.ReLU(),
+            nn.Linear(256, 128),
             nn.ReLU(),
             nn.Linear(128, action_dim)
         )
@@ -18,7 +20,9 @@ class ValueNetwork(nn.Module):
     def __init__(self, state_dim):
         super().__init__()
         self.fc = nn.Sequential(
-            nn.Linear(state_dim, 128),
+            nn.Linear(state_dim, 256),
+            nn.ReLU(),
+            nn.Linear(256, 128),
             nn.ReLU(),
             nn.Linear(128, 1)
         )
@@ -40,13 +44,16 @@ class PPO:
         return action.item(), dist.log_prob(action)
     
     def update(self, batch):
-        states, actions, rewards, old_log_probs, advantages, returns = batch
+        states, actions, old_log_probs, advantages, returns = batch
         states = torch.FloatTensor(states)
         actions = torch.LongTensor(actions)
-        old_log_probs = torch.stack(old_log_probs).detach()
+        old_log_probs = old_log_probs.detach()
         advantages = torch.FloatTensor(advantages)
-        #advantages normalization
-        advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
+        if advantages.numel() > 1:
+            advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
+        else:
+            advantages = advantages - advantages.mean()
+
         returns = torch.FloatTensor(returns)
 
         new_logits = self.policy(states)
@@ -66,7 +73,9 @@ class PPO:
         #entropy term
         entropy = dist.entropy().mean()
 
-        loss = policy_loss + 0.5 * value_loss + 0.1 * entropy
+        loss = policy_loss + 0.5 * value_loss + 0.01 * entropy
+
+        print(f"Total loss: {loss:.4f}, Policy: {policy_loss:.4f}, Value: {value_loss:.4f}, Entropy: {entropy:.4f}")
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()

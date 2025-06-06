@@ -1,12 +1,12 @@
 ## AnE CONFIGS
-env_name: "MiniGrid-DoorKey-8x8-v0"
-rollouts: 50
+env_name: "MiniGrid-Playground-v0"
+rollouts: 128
 opt_steps: 10
-init_qs: 6
-rollout_length : 128 
+init_qs: 20
+rollout_length : 20
 qs_per_step : 1
 alpha : 0.3
-lr: 0.003
+lr: 0.001
 
 #PPO specific configs
 ppo:

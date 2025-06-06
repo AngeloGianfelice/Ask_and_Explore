@@ -1,94 +1,90 @@
-import gymnasium as gym
+import gym
 import numpy as np
-from minigrid.wrappers import RGBImgPartialObsWrapper, ImgObsWrapper
+from src.utils  import get_cell_in_direction,is_object_visible
+
+if not hasattr(np, 'bool8'):
+    np.bool8 = np.bool_
 
 
 class MiniGridEnvWrapper:
-    def __init__(self, env_name="MiniGrid-DoorKey-8x8-v0"):
-        self.env = gym.make(env_name)
-        self.env = RGBImgPartialObsWrapper(self.env)
-        self.env = ImgObsWrapper(self.env)
+    def __init__(self, env_name="MiniGrid-DoorKey-8x8-v0",render_mode="human"):
+        self.env = gym.make(env_name,render_mode=render_mode)
+        self.base_env = self.env.unwrapped  # gives direct access to grid, agent position, etc.
 
         self.action_space = self.env.action_space
-        self.state_dim = np.prod(self.env.observation_space.shape)
+        self.state_dim = np.prod(self.env.observation_space['image'].shape)
         self.action_dim = self.env.action_space.n
 
+    def render(self):
+        return self.env.render()
+
     def reset(self):
-        obs = self.env.reset()
-        return (obs[0].astype(np.float32) / 255.0).flatten()
+        obs, _ = self.env.reset()
+        self.env.render()
+        image_obs = obs['image']  # structured obs dict
+        return image_obs.astype(np.float32).flatten() / 255.0
 
     def step(self, action):
         obs, reward, terminated, truncated, info = self.env.step(action)
+        image_obs = obs['image']
         done = terminated or truncated
-        return (obs[0].astype(np.float32) / 255.0).flatten(), reward, done
+        return image_obs.astype(np.float32).flatten() / 255.0, reward, done
 
-    def get_questions(self,state=None):
-        # state param ignored since we use self.grid
-        questions = [
-            "Is there a red key visible?",
-            "Is there a door in front?",
-            "Is the agent holding a key?",
-            "Is the door in front open?",
-            "Is there a ball in top-left corner?",
-            "Is the agent next to a wall on the left?",
-        ]
+    def get_questions(self):
+        questions = []
+        colors = ['red', 'green']
+        objects = ['key', 'ball']
+
+        for color in colors:
+            for obj in objects:
+                questions.append(f"Is there a {color} {obj} visible?")
+
+        directions = ['left', 'right', 'front', 'behind']
+        for dir in directions:
+            questions.append(f"Is there a wall to the {dir}?")
+
+        questions.append("Is the agent holding an object?")
+        questions.append("Is the object in front a door?")
+
         return questions
 
+
     def answer_question(self, state, question):
-        # Use self.grid, self.agent_pos, self.agent_dir for answers
-    
-        def is_object_visible(obj_type, color=None):
-            grid = self.env.grid
-            for i in range(grid.width):
-                for j in range(grid.height):
-                    cell = grid.get(i, j)
-                    if cell is not None and cell.type == obj_type:
-                        if color is None or cell.color == color:
-                            return True
-            return False
+        env = self.base_env
 
-        def get_cell_in_front():
-            base_env = self.env.unwrapped  # unwrap to access agent_pos
-            x, y = base_env.agent_pos
-            dir = base_env.agent_dir
-            # agent_dir: 0=right,1=down,2=left,3=up in MiniGrid
-            if dir == 0: nx, ny = x + 1, y
-            elif dir == 1: nx, ny = x, y + 1
-            elif dir == 2: nx, ny = x - 1, y
-            else: nx, ny = x, y - 1
-            return self.env.grid.get(nx, ny)
+        # Handle visibility questions
+        if question.startswith("Is there a") and "visible" in question:
+            parts = question.split()
+            color = parts[3]
+            obj = parts[4]
+            return is_object_visible(env,obj, color)
 
-        if question == "Is there a red key visible?":
-            return is_object_visible('key', 'red')
-
-        elif question == "Is there a door in front?":
-            cell = get_cell_in_front()
-            return cell is not None and cell.type == 'door'
-
-        elif question == "Is the door in front open?":
-            cell = get_cell_in_front()
-            return cell is not None and cell.type == 'door' and cell.is_open
-
-        elif question == "Is the agent holding a key?":
-        # MiniGrid env stores inventory in env.carrying
-            return self.env.carrying is not None and self.env.carrying.type == 'key'
-
-        elif question == "Is there a ball in top-left corner?":
-            cell = self.env.grid.get(0, 0)
-            return cell is not None and cell.type == 'ball'
-
-        elif question == "Is the agent next to a wall on the left?":
-            # Calculate cell to the left of agent
-            x, y = self.env.agent_pos
-            dir = self.env.agent_dir
-            if dir == 0: nx, ny = x, y - 1
-            elif dir == 1: nx, ny = x - 1, y
-            elif dir == 2: nx, ny = x, y + 1
-            else: nx, ny = x + 1, y
-            cell = self.env.grid.get(nx, ny)
+        # Directional wall/object checks
+        if question.startswith("Is there a wall to the"):
+            direction = question.split()[-1][:-1] if question.endswith("?") else question.split()[-1]
+            cell = get_cell_in_direction(env,direction)
             return cell is not None and cell.type == 'wall'
 
-        else:
-            # Unknown question
-            return False
+        if question.startswith("Is there a") and "to the" in question:
+            parts = question.split()
+            obj = parts[3]
+            direction = parts[-1][:-1] if question.endswith("?") else parts[-1]
+            cell = get_cell_in_direction(env,direction)
+            return cell is not None and cell.type == obj
+
+        if question == "Is the object in front a door?":
+            cell = get_cell_in_direction(env,'front')
+            return cell is not None and cell.type == 'door'
+
+        if question == "Is the door in front open?":
+            cell = get_cell_in_direction(env,'front')
+            return cell is not None and cell.type == 'door' and cell.is_open
+
+        if question == "Is the agent holding something?":
+            return env.carrying is not None
+
+        if question == "Is the agent in the top-left corner?":
+            return env.agent_pos == (0, 0)
+
+        return False  # default fallback
 

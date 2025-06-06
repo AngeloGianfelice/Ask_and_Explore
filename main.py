@@ -30,3 +30,5 @@ if __name__ == '__main__':
     ppo = PPO(state_dim=env.state_dim, action_dim=env.action_dim,lr=lr, clip_epsilon=clip_epsilon)
     agent = ANEAgent(env, ppo, M=init_qs, K=rollout_length, n=qs_per_step, gamma=gamma, lambd=lambd)
     agent.rollout(N=rollouts, Nopt=opt_steps)
+    agent.test(episodes=5, render=True)
+
