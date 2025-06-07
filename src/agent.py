@@ -62,6 +62,7 @@ class ANEAgent:
                 #print(f"answer:{answers_t}")
 
                 action, log_prob = self.ppo.get_action(state)
+                #print(f"currentaction:{action}")
 
                 next_state, re, done = self.env.step(action)
                 answers_t1 = [self.env.answer_question(next_state, q) for q in qs]

@@ -1,12 +1,12 @@
 ## AnE CONFIGS
 env_name: "MiniGrid-Playground-v0"
-rollouts: 128
-opt_steps: 10
+rollouts: 256
+opt_steps: 4
 init_qs: 20
-rollout_length : 20
+rollout_length : 64
 qs_per_step : 1
 alpha : 0.3
-lr: 0.001
+lr: 2.5e-4
 
 #PPO specific configs
 ppo:

@@ -8,7 +8,7 @@ if not hasattr(np, 'bool8'):
 
 class MiniGridEnvWrapper:
     def __init__(self, env_name="MiniGrid-DoorKey-8x8-v0",render_mode="human"):
-        self.env = gym.make(env_name,render_mode=render_mode)
+        self.env = gym.make(env_name)
         self.base_env = self.env.unwrapped  # gives direct access to grid, agent position, etc.
 
         self.action_space = self.env.action_space

@@ -1,3 +1,6 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
 def is_object_visible(env, obj_type, color=None):
         for i in range(env.grid.width):
             for j in range(env.grid.height):
@@ -22,3 +25,11 @@ def get_cell_in_direction(env,direction):
     else: nx, ny = x, y - 1          # up
 
     return env.grid.get(nx, ny)
+
+def plot_learning_curve(x, scores, figure_file):
+    running_avg = np.zeros(len(scores))
+    for i in range(len(running_avg)):
+        running_avg[i] = np.mean(scores[max(0, i-100):(i+1)])
+    plt.plot(x, running_avg)
+    plt.title('Running average of previous 100 scores')
+    plt.savefig(figure_file)
