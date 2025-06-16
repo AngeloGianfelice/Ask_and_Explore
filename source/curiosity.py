@@ -19,7 +19,7 @@ class GQACuriosityModule():
             "Is the goal visible?"
         ]
 
-        # CORRECTED dir_vec for standard MiniGrid agent_dir mapping (0:East, 1:South, 2:West, 3:North)
+        # dir_vec for standard MiniGrid agent_dir mapping (0:East, 1:South, 2:West, 3:North)
         self.dir_vec = [
             np.array([1, 0]),   # E (0) - MiniGrid default: Facing right
             np.array([0, 1]),   # S (1) - MiniGrid default: Facing down
@@ -61,10 +61,8 @@ class GQACuriosityModule():
 
         return obj_desc
 
-    def answer_question(self, question: str,
-                        grid_encoded: np.ndarray, visible_grid, agent_pos: np.ndarray,
-                        agent_dir: int,
-                        width: int, height: int):
+    def answer_question(self, question, grid_encoded, visible_grid, agent_pos,
+                        agent_dir, width, height):
 
         question = question.lower().strip()
 

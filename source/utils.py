@@ -37,7 +37,6 @@ def plot_metric(data, figure_file, xlabel, ylabel, title):
 
 def plot_metrics(data1, data2, figure_file, xlabel,ylabel):
     
-    #assert len(data1) == len(data2)
     running_avg1 = np.zeros(len(data1))
     running_std1 = np.zeros(len(data1))
 
@@ -82,7 +81,6 @@ def multi_plotter(data, figure_file, xlabel, ylabel):
 
         x=[i+1 for i in range(len(data))]
         plt.plot(x, running_avg,label=label[j],color=color[j])
-        #plt.fill_between(x, running_avg - running_std, running_avg + running_std, color=color[j], alpha=0.2)
 
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)

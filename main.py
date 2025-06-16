@@ -67,8 +67,6 @@ def main(mode,algorithm,n,config):
         env = RGBImgPartialObsWrapper(env)
         env = Minigrid_Wrapper(env)
         n_actions = env.action_space.n
-        #env = RecordVideo(env, video_folder=video_folder, episode_trigger=lambda e: e % 100 == 0)
-        #env = RecordEpisodeStatistics(env)
 
         model_fname=f"ActorCritic_{algorithm}_{n}.pth"
         agent = Agent(n_actions=n_actions, model_fname=model_fname, batch_size=config['batch_size'], 
