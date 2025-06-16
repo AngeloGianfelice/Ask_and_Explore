@@ -3,7 +3,7 @@ seed: 42
 batch_size: 64
 entropy_coef: 0.01
 input_dims: [3, 56, 56]
-num_games: 1000
+num_games: 10000
 env_name: "MiniGrid-SimpleCrossingS9N1-v0"
 rollout_length: 1024
 n_epochs: 4
