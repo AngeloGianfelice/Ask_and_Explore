@@ -1,17 +1,19 @@
 ## AnE CONFIGS
-env_name: "MiniGrid-Playground-v0"
-rollouts: 256
-opt_steps: 4
-init_qs: 20
-rollout_length : 64
-qs_per_step : 1
-alpha : 0.3
-lr: 2.5e-4
-
-#PPO specific configs
-ppo:
-    gamma: 0.99
-    lambda: 0.95
-    clip_epsilon : 0.2
+seed: 42
+batch_size: 64
+entropy_coef: 0.01
+input_dims: [3, 56, 56]
+num_games: 1000
+env_name: "MiniGrid-Empty-5x5-v0"
+rollout_length: 1024
+n_epochs: 4
+lr: 0.0001
+beta_start: 0.01
+beta_min: 0.001
+beta_decay: 0.0001
+gamma: 0.99
+lambda: 0.95
+policy_clip : 0.2
+save_video_rate: 1000
 
 

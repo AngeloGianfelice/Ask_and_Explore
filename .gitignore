@@ -1,2 +1,5 @@
 #ignore all __pycache__ directories
-__pycache__/ 
+__pycache__/
+
+/test.py
+/plotter.py
