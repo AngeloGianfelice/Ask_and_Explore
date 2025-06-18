@@ -62,7 +62,7 @@ Answers change across steps are used to incentivise agent exploration through an
 | ![image](https://github.com/user-attachments/assets/bec8aa55-b0b0-4fc5-ba7b-56f6bf500b90) | ![image](https://github.com/user-attachments/assets/dd03d028-26c9-4512-92ec-12879567744b) |
 
 ### AnE successful runs examples
-| MiniGrid-Empty-8x8-v0 | MiniGrid-SimpleCrossingS9N1-v0 | MiniGrid-FourRooms-v0 |
+| MiniGrid-Empty-8x8 | MiniGrid-SimpleCrossingS9N1| MiniGrid-FourRooms |
 |--------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|------------------------------------------------|
 | ![rl-video-episode-6](https://github.com/user-attachments/assets/910f9875-b465-4568-b668-27dc1b876820) | ![rl-video-episode-12](https://github.com/user-attachments/assets/76c71aee-d389-4830-baa6-74c0620f69fa) | ![rl-video-episode-28](https://github.com/user-attachments/assets/8ce0ad22-a1f3-4470-b7d1-97a212de1d8b) |                                                                                                        
 
